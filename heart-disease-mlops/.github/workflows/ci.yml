@@ -1,0 +1,103 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  lint:
+    name: Lint (flake8)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install flake8
+      - name: Run flake8
+        run: flake8 .
+
+  test:
+    name: Unit tests (pytest)
+    needs: lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: Run tests with coverage
+        run: pytest --cov=src --cov-report=xml --cov-report=term-missing --junitxml=junit.xml
+      - name: Upload test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-reports
+          path: |
+            junit.xml
+            coverage.xml
+
+  train:
+    name: Train model (MLflow)
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: Download and clean data
+        run: |
+          python -m src.data.download_data
+          python -m src.data.preprocess
+      - name: Train and track with MLflow
+        run: python -m src.models.train
+      - name: Upload model and tracking artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: trained-model
+          path: |
+            models/
+            reports/
+            mlruns/
+            mlflow.db
+
+  docker:
+    name: Build and smoke-test Docker image
+    needs: train
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download trained model
+        uses: actions/download-artifact@v4
+        with:
+          name: trained-model
+          path: artifacts
+      - name: Place model where the Dockerfile expects it
+        run: |
+          mkdir -p models
+          cp artifacts/models/* models/
+      - name: Build image
+        run: docker build -t heart-disease-api:ci .
+      - name: Run container
+        run: docker run -d --name api -p 8000:8000 heart-disease-api:ci
+      - name: Smoke test /health and /predict
+        run: |
+          for i in $(seq 1 20); do
+            curl -sf http://localhost:8000/health && break || sleep 2
+          done
+          curl -sf http://localhost:8000/health
+          curl -sf -X POST http://localhost:8000/predict \
+            -H "Content-Type: application/json" \
+            -d @scripts/sample_request.json
+      - name: Show container logs
+        if: always()
+        run: docker logs api

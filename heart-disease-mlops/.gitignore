@@ -1,0 +1,14 @@
+.venv/
+__pycache__/
+.ipynb_checkpoints/
+*.pyc
+.DS_Store
+.pytest_cache/
+.coverage
+htmlcov/
+coverage.xml
+junit.xml
+# MLflow local store (uploaded as CI artifacts instead)
+mlruns/
+mlflow.db
+logs/

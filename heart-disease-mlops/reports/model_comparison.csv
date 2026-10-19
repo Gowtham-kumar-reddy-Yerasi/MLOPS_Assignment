@@ -1,0 +1,3 @@
+model,best_params,cv_accuracy,cv_accuracy_std,cv_precision,cv_precision_std,cv_recall,cv_recall_std,cv_roc_auc,cv_roc_auc_std,test_accuracy,test_precision,test_recall,test_roc_auc
+logistic_regression,{'model__C': 1},0.8471,0.01,0.8768,0.0542,0.7834,0.0459,0.9025,0.0144,0.8852,0.8387,0.9286,0.9665
+random_forest,"{'model__max_depth': None, 'model__min_samples_leaf': 5, 'model__n_estimators': 300}",0.8096,0.0321,0.81,0.0547,0.7735,0.0826,0.9023,0.0327,0.8525,0.8065,0.8929,0.9481

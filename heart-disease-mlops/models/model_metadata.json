@@ -1,0 +1,23 @@
+{
+  "model_name": "logistic_regression",
+  "trained_at": "2026-10-19T10:26:21.164009+00:00",
+  "sklearn_version": "1.7.2",
+  "features": [
+    "age",
+    "trestbps",
+    "chol",
+    "thalach",
+    "oldpeak",
+    "sex",
+    "cp",
+    "fbs",
+    "restecg",
+    "exang",
+    "slope",
+    "ca",
+    "thal"
+  ],
+  "cv_roc_auc": 0.9025,
+  "test_roc_auc": 0.9665,
+  "best_params": "{'model__C': 1}"
+}
