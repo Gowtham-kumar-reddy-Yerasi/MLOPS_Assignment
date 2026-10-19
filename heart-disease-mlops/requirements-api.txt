@@ -1,11 +1,11 @@
 # Minimal dependencies for the Docker serving image.
 # IMPORTANT: pin scikit-learn / numpy / pandas / joblib to the EXACT versions
 # you trained with (see docs/EXECUTION_GUIDE.md, "Pin your versions").
-pandas>=2.1,<4
-numpy>=1.26,<3
-scikit-learn>=1.4,<2
-joblib>=1.3
 fastapi>=0.110
 uvicorn>=0.29
 pydantic>=2.6,<3
 prometheus-client>=0.20
+joblib==1.5.2
+numpy==2.2.6
+pandas==2.3.3
+scikit-learn==1.7.2
